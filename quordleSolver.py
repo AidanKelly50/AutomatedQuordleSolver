@@ -145,6 +145,8 @@ def getMissingLetters(wordNum, ltr):
     
     return missingLetters
 
+# List of Strings -> List of Numbers
+# Gets the positions of the unknown letters in the list of words
 def getUnknownLetterPositions(wordList):
     unknownLtrPosList = []
     for ltr in range(5):
@@ -159,7 +161,22 @@ def getUnknownLetterPositions(wordList):
             unknownLtrPosList.append(ltr)
     
     return unknownLtrPosList
-                
+
+
+def minLenNot0():
+    minLen = len(indivWords[0])
+    # Make it the highest one so it's definitely not 0
+    for i in range(1, 4):
+        if len(indivWords[i]) > minLen:
+            minLen = len(indivWords[i])
+
+    
+    for i in range(4):
+        if len(indivWords[i]) != 0 and len(indivWords[i]) < minLen:
+            
+            minLen = len(indivWords[i])
+    
+    return minLen
 
 
 # None -> String
@@ -169,6 +186,7 @@ def findBestWord():
     for i in range(4):
         if len(indivWords[i]) == 1:
             resultsList[i] = ["C", "C", "C", "C", "C"]
+            print("Found word: ", indivWords[i][0], " --- Iteration: ", iteration + 1)
             return indivWords[i][0]
         
     combinedWordsList = []
@@ -237,15 +255,17 @@ def findBestWord():
 
             curWordValue += (likelihoods[j][curLetterIndex] * dupeFactor)
 
-        # Stops it from guessing from the same list twice in a row
+        
+        # Stops it from guessing from the smallest list
         if iteration > 0:
             inListCounter = 0
             for a in range(4):
                 if combinedWordsList[i] in indivWords[a]:
                     inListCounter += 1
-
-            if inListCounter == 1 and combinedWordsList[i] in indivWords[lastWordGuessedFromList]:
-                curWordValue = 0
+        
+            for b in range(4):
+                if minLenNot0() == len(indivWords[b]) and inListCounter == 1 and combinedWordsList[i] in indivWords[b] and wordsLeft > 1:
+                    curWordValue = 0
 
         # Appends the likelihoods value of the current word to the value list
         wordValueList.append(curWordValue)
@@ -384,9 +404,9 @@ def repeatGame():
         playGame()
         time.sleep(3)
 
-        print("Wins:", len(winsList), "-", numLosses)
+        print("Wins:", len(winsList), "-", numLosses, " --- At iteration: ", iteration + 1)
         print()
-        
+
         playAgainButton = driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div[2]/div/div[1]/div[1]/div/div/span[2]/span/button")
         playAgainButton.click()
 
